@@ -159,7 +159,67 @@ router.post('/:uid/documents', async (req, res) => {
 
         student.documents.push({ name, type, url });
         await student.save();
-        res.json(student.documents);
+        res.json(student);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Add a project
+router.post('/:uid/projects', async (req, res) => {
+    try {
+        const { title, description, link, status } = req.body;
+        const student = await User.findOne({ uid: req.params.uid, role: 'student' });
+        if (!student) return res.status(404).json({ msg: 'Student not found' });
+
+        student.projects.push({ title, description, link, status });
+        student.activities.push({
+            description: `Added project: ${title}`,
+            type: 'update'
+        });
+
+        await student.save();
+        res.json(student);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Add a course
+router.post('/:uid/courses', async (req, res) => {
+    try {
+        const { name, platform, status, certificate } = req.body;
+        const student = await User.findOne({ uid: req.params.uid, role: 'student' });
+        if (!student) return res.status(404).json({ msg: 'Student not found' });
+
+        student.courses.push({ name, platform, status, certificate });
+        student.activities.push({
+            description: `Enrolled in course: ${name} on ${platform}`,
+            type: 'update'
+        });
+
+        await student.save();
+        res.json(student);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Add a research paper
+router.post('/:uid/research-papers', async (req, res) => {
+    try {
+        const { title, journal, link, status } = req.body;
+        const student = await User.findOne({ uid: req.params.uid, role: 'student' });
+        if (!student) return res.status(404).json({ msg: 'Student not found' });
+
+        student.researchPapers.push({ title, journal, link, status });
+        student.activities.push({
+            description: `Added research paper: ${title}`,
+            type: 'update'
+        });
+
+        await student.save();
+        res.json(student);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

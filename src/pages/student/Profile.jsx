@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import {
-    User, Mail, Phone, MapPin, GraduationCap,
-    Camera, Save, UserCircle, Calendar, Edit2,
-    CheckCircle2, X, FileText, BadgeCheck, Plus
+    CheckCircle2, X, FileText, BadgeCheck, Plus,
+    Book, Award, Rocket, ExternalLink, Library, Briefcase,
+    User, Mail, Phone, MapPin, GraduationCap, Camera, Save, UserCircle, Calendar, Edit2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
@@ -13,7 +13,7 @@ export default function StudentProfile() {
     const [showSuccess, setShowSuccess] = useState(false);
     const [mentorDetails, setMentorDetails] = useState(null);
     const [isFetchingMentor, setIsFetchingMentor] = useState(false);
-    const { user, updateUser, getMentorByUid, getMentorStats } = useAuth();
+    const { user, updateUser, getMentorByUid, getMentorStats, addProject, addCourse, addResearchPaper } = useAuth();
     const fileInputRef = useRef(null);
 
     // Initial local state
@@ -42,6 +42,15 @@ export default function StudentProfile() {
 
     const [showMentorModal, setShowMentorModal] = useState(false);
     const [mentorStats, setMentorStats] = useState({ menteeCount: 0, reportsReviewed: 0 });
+
+    // New Modals State
+    const [showProjectModal, setShowProjectModal] = useState(false);
+    const [showCourseModal, setShowCourseModal] = useState(false);
+    const [showPaperModal, setShowPaperModal] = useState(false);
+
+    const [newProject, setNewProject] = useState({ title: '', description: '', link: '', status: 'Ongoing' });
+    const [newCourse, setNewCourse] = useState({ name: '', platform: '', status: 'Ongoing', certificate: '' });
+    const [newPaper, setNewPaper] = useState({ title: '', journal: '', link: '', status: 'Published' });
 
     // Fetch mentor details dynamically when mentorId changes
     useEffect(() => {
@@ -95,6 +104,33 @@ export default function StudentProfile() {
     const getInitials = (name) => {
         if (!name) return 'JD';
         return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    };
+
+    const handleAddProject = async (e) => {
+        e.preventDefault();
+        const res = await addProject(newProject);
+        if (res.success) {
+            setShowProjectModal(false);
+            setNewProject({ title: '', description: '', link: '', status: 'Ongoing' });
+        }
+    };
+
+    const handleAddCourse = async (e) => {
+        e.preventDefault();
+        const res = await addCourse(newCourse);
+        if (res.success) {
+            setShowCourseModal(false);
+            setNewCourse({ name: '', platform: '', status: 'Ongoing', certificate: '' });
+        }
+    };
+
+    const handleAddPaper = async (e) => {
+        e.preventDefault();
+        const res = await addResearchPaper(newPaper);
+        if (res.success) {
+            setShowPaperModal(false);
+            setNewPaper({ title: '', journal: '', link: '', status: 'Published' });
+        }
     };
 
     return (
@@ -474,7 +510,259 @@ export default function StudentProfile() {
                     </div>
                 </div>
             </div>
-        </div>
+
+            {/* Portfolio Sections */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                {/* Projects Section */}
+                <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
+                    <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-500/20">
+                                <Rocket size={20} />
+                            </div>
+                            <h3 className="text-xl font-black">Projects</h3>
+                        </div>
+                        {!isEditing && (
+                            <button
+                                onClick={() => setShowProjectModal(true)}
+                                className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition-all"
+                            >
+                                <Plus size={20} />
+                            </button>
+                        )}
+                    </div>
+                    <div className="space-y-4">
+                        {user?.projects?.map((item, i) => (
+                            <div key={i} className="p-5 bg-muted/30 rounded-2xl border border-border/50 group hover:border-blue-500/50 transition-all">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h4 className="font-bold text-foreground group-hover:text-blue-500 transition-colors uppercase text-sm tracking-tight">{item.title}</h4>
+                                    <span className={`text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest ${item.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                                        {item.status}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">{item.description}</p>
+                                {item.link && (
+                                    <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[10px] font-black text-primary uppercase hover:underline">
+                                        <ExternalLink size={12} /> View Project
+                                    </a>
+                                )}
+                            </div>
+                        ))}
+                        {(!user?.projects || user.projects.length === 0) && (
+                            <div className="text-center py-10 opacity-40">
+                                <Rocket size={40} className="mx-auto mb-3" />
+                                <p className="text-xs font-bold uppercase tracking-widest">No Projects Yet</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Courses Section */}
+                <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
+                    <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-purple-500 text-white rounded-xl shadow-lg shadow-purple-500/20">
+                                <Book size={20} />
+                            </div>
+                            <h3 className="text-xl font-black">Courses</h3>
+                        </div>
+                        {!isEditing && (
+                            <button
+                                onClick={() => setShowCourseModal(true)}
+                                className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition-all"
+                            >
+                                <Plus size={20} />
+                            </button>
+                        )}
+                    </div>
+                    <div className="space-y-4">
+                        {user?.courses?.map((item, i) => (
+                            <div key={i} className="p-5 bg-muted/30 rounded-2xl border border-border/50 group hover:border-purple-500/50 transition-all">
+                                <div className="flex items-start gap-4">
+                                    <div className="p-2.5 bg-purple-500/10 text-purple-500 rounded-xl group-hover:scale-110 transition-transform">
+                                        <Award size={20} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-bold text-foreground group-hover:text-purple-500 transition-colors uppercase text-sm tracking-tight">{item.name}</h4>
+                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-2">{item.platform}</p>
+                                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest ${item.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                                            {item.status}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        {(!user?.courses || user.courses.length === 0) && (
+                            <div className="text-center py-10 opacity-40">
+                                <Book size={40} className="mx-auto mb-3" />
+                                <p className="text-xs font-bold uppercase tracking-widest">No Courses Enrolled</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Research Papers Section */}
+                <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
+                    <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-amber-500 text-white rounded-xl shadow-lg shadow-amber-500/20">
+                                <Library size={20} />
+                            </div>
+                            <h3 className="text-xl font-black">Publications</h3>
+                        </div>
+                        {!isEditing && (
+                            <button
+                                onClick={() => setShowPaperModal(true)}
+                                className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition-all"
+                            >
+                                <Plus size={20} />
+                            </button>
+                        )}
+                    </div>
+                    <div className="space-y-4">
+                        {user?.researchPapers?.map((item, i) => (
+                            <div key={i} className="p-5 bg-muted/30 rounded-2xl border border-border/50 group hover:border-amber-500/50 transition-all">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h4 className="font-bold text-foreground group-hover:text-amber-500 transition-colors uppercase text-sm tracking-tight">{item.title}</h4>
+                                    <span className="text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest bg-amber-500/10 text-amber-500">
+                                        {item.status}
+                                    </span>
+                                </div>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">{item.journal}</p>
+                                {item.link && (
+                                    <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[10px] font-black text-primary uppercase hover:underline">
+                                        <ExternalLink size={12} /> Read Full Paper
+                                    </a>
+                                )}
+                            </div>
+                        ))}
+                        {(!user?.researchPapers || user.researchPapers.length === 0) && (
+                            <div className="text-center py-10 opacity-40">
+                                <Library size={40} className="mx-auto mb-3" />
+                                <p className="text-xs font-bold uppercase tracking-widest">No Publications</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Modals for Adding Content */}
+            <AnimatePresence>
+                {/* Project Modal */}
+                {showProjectModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowProjectModal(false)} className="absolute inset-0 bg-background/80 backdrop-blur-xl" />
+                        <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-card border border-border w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden p-8">
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="p-3 bg-blue-500 text-white rounded-2xl"><Rocket size={24} /></div>
+                                <h3 className="text-2xl font-black">Add New Project</h3>
+                            </div>
+                            <form onSubmit={handleAddProject} className="space-y-5">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Project Title</label>
+                                    <input required type="text" className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-blue-500 rounded-2xl font-bold outline-none transition-all" placeholder="e.g. AI Content Generator" value={newProject.title} onChange={(e) => setNewProject({ ...newProject, title: e.target.value })} />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Brief Description</label>
+                                    <textarea required rows={3} className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-blue-500 rounded-2xl font-bold outline-none transition-all resize-none" placeholder="Explain what you built..." value={newProject.description} onChange={(e) => setNewProject({ ...newProject, description: e.target.value })} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Status</label>
+                                        <select className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-blue-500 rounded-2xl font-bold outline-none cursor-pointer" value={newProject.status} onChange={(e) => setNewProject({ ...newProject, status: e.target.value })}>
+                                            <option>Ongoing</option>
+                                            <option>Completed</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">GitHub / Live Link</label>
+                                        <input type="url" className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-blue-500 rounded-2xl font-bold outline-none transition-all" placeholder="https://..." value={newProject.link} onChange={(e) => setNewProject({ ...newProject, link: e.target.value })} />
+                                    </div>
+                                </div>
+                                <div className="flex gap-4 pt-4">
+                                    <button type="button" onClick={() => setShowProjectModal(false)} className="flex-1 py-4 font-black uppercase tracking-widest text-sm rounded-2xl hover:bg-muted transition-all">Cancel</button>
+                                    <button type="submit" className="flex-1 py-4 bg-blue-500 text-white font-black uppercase tracking-widest text-sm rounded-2xl shadow-lg shadow-blue-500/20 hover:opacity-90 transition-all">Add Project</button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+
+                {/* Course Modal */}
+                {showCourseModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCourseModal(false)} className="absolute inset-0 bg-background/80 backdrop-blur-xl" />
+                        <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-card border border-border w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden p-8">
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="p-3 bg-purple-500 text-white rounded-2xl"><Book size={24} /></div>
+                                <h3 className="text-2xl font-black">Enrol in Course</h3>
+                            </div>
+                            <form onSubmit={handleAddCourse} className="space-y-5">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Course Name</label>
+                                    <input required type="text" className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-purple-500 rounded-2xl font-bold outline-none transition-all" placeholder="e.g. Full Stack Web Development" value={newCourse.name} onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })} />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Platform</label>
+                                    <input required type="text" className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-purple-500 rounded-2xl font-bold outline-none transition-all" placeholder="e.g. Coursera, Udemy, NPTEL" value={newCourse.platform} onChange={(e) => setNewCourse({ ...newCourse, platform: e.target.value })} />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Current Status</label>
+                                    <select className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-purple-500 rounded-2xl font-bold outline-none cursor-pointer" value={newCourse.status} onChange={(e) => setNewCourse({ ...newCourse, status: e.target.value })}>
+                                        <option>Ongoing</option>
+                                        <option>Completed</option>
+                                    </select>
+                                </div>
+                                <div className="flex gap-4 pt-4">
+                                    <button type="button" onClick={() => setShowCourseModal(false)} className="flex-1 py-4 font-black uppercase tracking-widest text-sm rounded-2xl hover:bg-muted transition-all">Cancel</button>
+                                    <button type="submit" className="flex-1 py-4 bg-purple-500 text-white font-black uppercase tracking-widest text-sm rounded-2xl shadow-lg shadow-purple-500/20 hover:opacity-90 transition-all">Save Course</button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+
+                {/* Paper Modal */}
+                {showPaperModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPaperModal(false)} className="absolute inset-0 bg-background/80 backdrop-blur-xl" />
+                        <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-card border border-border w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden p-8">
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="p-3 bg-amber-500 text-white rounded-2xl"><Library size={24} /></div>
+                                <h3 className="text-2xl font-black">Publish Research</h3>
+                            </div>
+                            <form onSubmit={handleAddPaper} className="space-y-5">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Paper Title</label>
+                                    <input required type="text" className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-amber-500 rounded-2xl font-bold outline-none transition-all" placeholder="e.g. Advances in Machine Learning" value={newPaper.title} onChange={(e) => setNewPaper({ ...newPaper, title: e.target.value })} />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Journal / Conference</label>
+                                    <input required type="text" className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-amber-500 rounded-2xl font-bold outline-none transition-all" placeholder="e.g. IEEE Xplore, Nature" value={newPaper.journal} onChange={(e) => setNewPaper({ ...newPaper, journal: e.target.value })} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Status</label>
+                                        <select className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-amber-500 rounded-2xl font-bold outline-none cursor-pointer" value={newPaper.status} onChange={(e) => setNewPaper({ ...newPaper, status: e.target.value })}>
+                                            <option>Published</option>
+                                            <option>Under Review</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Full Paper Link</label>
+                                        <input type="url" className="w-full px-5 py-4 bg-muted/30 border-2 border-transparent focus:border-amber-500 rounded-2xl font-bold outline-none transition-all" placeholder="https://..." value={newPaper.link} onChange={(e) => setNewPaper({ ...newPaper, link: e.target.value })} />
+                                    </div>
+                                </div>
+                                <div className="flex gap-4 pt-4">
+                                    <button type="button" onClick={() => setShowPaperModal(false)} className="flex-1 py-4 font-black uppercase tracking-widest text-sm rounded-2xl hover:bg-muted transition-all">Cancel</button>
+                                    <button type="submit" className="flex-1 py-4 bg-amber-500 text-white font-black uppercase tracking-widest text-sm rounded-2xl shadow-lg shadow-amber-500/20 hover:opacity-90 transition-all">Add Paper</button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </div >
     );
 }
 

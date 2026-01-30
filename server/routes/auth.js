@@ -28,13 +28,13 @@ router.post('/register', async (req, res) => {
         let user = await User.findOne({ uid });
         if (user) {
             console.log('Registration failed: UID already exists', uid);
-            return res.status(400).json({ msg: 'This ID is already registered' });
+            return res.status(400).json({ msg: `The ID "${uid}" is already registered. Please use a different ID.` });
         }
 
         let emailCheck = await User.findOne({ email });
         if (emailCheck) {
             console.log('Registration failed: Email already exists', email);
-            return res.status(400).json({ msg: 'This Email is already registered' });
+            return res.status(400).json({ msg: `The Email "${email}" is already registered.` });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -78,20 +78,24 @@ router.post('/login', async (req, res) => {
         // Normalizing for case-insensitive lookup
         uid = uid.toLowerCase().trim();
 
-        const user = await User.findOne({ uid, role });
+        // Find user by UID first (case-insensitive handled by normalization)
+        const user = await User.findOne({ uid });
+
         if (!user) {
-            console.log('Login failed: User not found', { uid, role });
-            const anyUser = await User.findOne({ uid });
-            if (anyUser) {
-                return res.status(400).json({ msg: `User exists but not as a ${role}` });
-            }
-            return res.status(400).json({ msg: 'User does not exist' });
+            console.log('Login failed: User not found with ID', uid);
+            return res.status(400).json({ msg: 'User ID does not exist' });
+        }
+
+        // Check if role matches
+        if (user.role !== role) {
+            console.log(`Login failed: Role mismatch for ${uid}. Expected ${role}, found ${user.role}`);
+            return res.status(400).json({ msg: `This ID is registered as a ${user.role}, not a ${role}.` });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            console.log('Login failed: Invalid credentials', uid);
-            return res.status(400).json({ msg: 'Invalid credentials' });
+            console.log('Login failed: Invalid credentials for', uid);
+            return res.status(400).json({ msg: 'Invalid password' });
         }
 
         console.log('Login successful:', uid);

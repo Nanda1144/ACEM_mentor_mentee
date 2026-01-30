@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import DashboardLayout from './components/DashboardLayout';
 import StudentDashboard from './pages/student/Dashboard';
@@ -18,6 +19,7 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
 
           <Route element={<DashboardLayout />}>
@@ -35,7 +37,7 @@ function App() {
             <Route path="/mentor/profile" element={<MentorProfile />} />
           </Route>
 
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </Router>

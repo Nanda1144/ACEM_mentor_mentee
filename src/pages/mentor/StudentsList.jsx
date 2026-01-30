@@ -2,7 +2,8 @@ import { useState } from 'react';
 import {
     Search, Filter, Download, User, ArrowRight, ExternalLink,
     Send, X, Calendar, BookOpen, Clock, Award, ShieldCheck, FileText,
-    Building, Camera, Mail, Phone, GraduationCap, BadgeCheck, Code, Layers
+    Building, Camera, Mail, Phone, GraduationCap, BadgeCheck, Code, Layers,
+    Rocket, Library, Briefcase, Book
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ExcelJS from 'exceljs';
@@ -421,13 +422,13 @@ export default function MyStudents() {
 
                             <div className="bg-card border-b border-border px-8 flex-shrink-0">
                                 <div className="flex gap-8 overflow-x-auto no-scrollbar">
-                                    {['overview', 'projects', 'leaves', 'activity'].map((tab) => (
+                                    {['overview', 'projects', 'courses', 'research', 'leaves', 'activity'].map((tab) => (
                                         <button
                                             key={tab}
                                             onClick={() => setActiveTab(tab)}
                                             className={`relative py-5 text-sm font-bold uppercase tracking-widest transition-colors flex-shrink-0 ${activeTab === tab ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                                         >
-                                            {tab}
+                                            {tab === 'research' ? 'Publications' : tab}
                                             {activeTab === tab && (
                                                 <motion.div
                                                     layoutId="modalTab"
@@ -497,45 +498,96 @@ export default function MyStudents() {
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -10 }}
-                                            className="space-y-6"
+                                            className="space-y-4"
                                         >
-                                            <div className="p-8 rounded-[2.5rem] bg-card border border-border shadow-sm relative overflow-hidden group">
-                                                <div className="absolute top-[-10%] right-[-10%] w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
-                                                <div className="flex items-center gap-4 mb-6">
-                                                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-600">
-                                                        <Code size={24} />
+                                            {selectedStudent.projects?.map((item, i) => (
+                                                <div key={i} className="p-6 rounded-[2rem] bg-card border border-border shadow-sm group hover:border-blue-500/30 transition-all">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <h4 className="font-bold text-foreground group-hover:text-blue-500 transition-colors uppercase text-sm tracking-tight">{item.title}</h4>
+                                                        <span className={`text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest ${item.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                                                            {item.status}
+                                                        </span>
                                                     </div>
-                                                    <div>
-                                                        <h4 className="font-black text-xl">{selectedStudent.currentProject || 'Research Project Alpha'}</h4>
-                                                        <p className="text-xs text-muted-foreground font-bold">Active Module Implementation</p>
-                                                    </div>
+                                                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">{item.description}</p>
+                                                    {item.link && (
+                                                        <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[10px] font-black text-primary uppercase hover:underline">
+                                                            <ExternalLink size={12} /> View Project
+                                                        </a>
+                                                    )}
                                                 </div>
+                                            ))}
+                                            {(!selectedStudent.projects || selectedStudent.projects.length === 0) && (
+                                                <div className="text-center py-20 opacity-40">
+                                                    <Rocket size={48} className="mx-auto mb-4" />
+                                                    <p className="font-bold uppercase tracking-widest text-sm">No Projects Logged</p>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    )}
 
-                                                <div className="space-y-4">
-                                                    <div className="space-y-2">
-                                                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                                                            <span>Project Completion</span>
-                                                            <span>{selectedStudent.progress}%</span>
+                                    {activeTab === 'courses' && (
+                                        <motion.div
+                                            key="courses"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            className="space-y-4"
+                                        >
+                                            {selectedStudent.courses?.map((item, i) => (
+                                                <div key={i} className="p-6 rounded-[2rem] bg-card border border-border shadow-sm group hover:border-purple-500/30 transition-all">
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="p-3 bg-purple-500/10 text-purple-500 rounded-2xl group-hover:scale-110 transition-transform">
+                                                            <Award size={24} />
                                                         </div>
-                                                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                                                            <div
-                                                                className="h-full bg-indigo-500 rounded-full"
-                                                                style={{ width: `${selectedStudent.progress}%` }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Core Technologies</p>
-                                                        <div className="flex flex-wrap gap-2">
-                                                            {(selectedStudent.technologies || 'React, Node, MongoDB').split(',').map(tech => (
-                                                                <span key={tech} className="px-3 py-1 bg-muted text-muted-foreground rounded-lg text-[10px] font-black uppercase">
-                                                                    {tech.trim()}
-                                                                </span>
-                                                            ))}
+                                                        <div className="flex-1">
+                                                            <h4 className="font-bold text-foreground group-hover:text-purple-500 transition-colors uppercase text-base tracking-tight">{item.name}</h4>
+                                                            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">{item.platform}</p>
+                                                            <span className={`text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest ${item.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                                                                {item.status}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            ))}
+                                            {(!selectedStudent.courses || selectedStudent.courses.length === 0) && (
+                                                <div className="text-center py-20 opacity-40">
+                                                    <Book size={48} className="mx-auto mb-4" />
+                                                    <p className="font-bold uppercase tracking-widest text-sm">No Courses Enrolled</p>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    )}
+
+                                    {activeTab === 'research' && (
+                                        <motion.div
+                                            key="research"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            className="space-y-4"
+                                        >
+                                            {selectedStudent.researchPapers?.map((item, i) => (
+                                                <div key={i} className="p-6 rounded-[2rem] bg-card border border-border shadow-sm group hover:border-amber-500/30 transition-all">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <h4 className="font-bold text-foreground group-hover:text-amber-500 transition-colors uppercase text-sm tracking-tight">{item.title}</h4>
+                                                        <span className="text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest bg-amber-500/10 text-amber-500">
+                                                            {item.status}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">{item.journal}</p>
+                                                    {item.link && (
+                                                        <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[10px] font-black text-primary uppercase hover:underline">
+                                                            <ExternalLink size={12} /> Read Full Paper
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            {(!selectedStudent.researchPapers || selectedStudent.researchPapers.length === 0) && (
+                                                <div className="text-center py-20 opacity-40">
+                                                    <Library size={48} className="mx-auto mb-4" />
+                                                    <p className="font-bold uppercase tracking-widest text-sm">No Publications</p>
+                                                </div>
+                                            )}
                                         </motion.div>
                                     )}
 

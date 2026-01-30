@@ -1,7 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
+require('dotenv').config(); // Also load default .env if it exists
+
 
 const app = express();
 
@@ -24,6 +27,6 @@ app.use('/api/students', studentRoutes);
 app.use('/api/mentors', mentorRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });

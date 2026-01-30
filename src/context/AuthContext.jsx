@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -204,6 +204,45 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const addProject = async (projectData) => {
+        try {
+            const res = await axios.post(`${API_URL}/students/${user.id}/projects`, projectData);
+            const newUser = { ...res.data, id: res.data.uid };
+            setUser(newUser);
+            localStorage.setItem('user', JSON.stringify(newUser));
+            return { success: true };
+        } catch (err) {
+            console.error('Error adding project:', err);
+            return { success: false };
+        }
+    };
+
+    const addCourse = async (courseData) => {
+        try {
+            const res = await axios.post(`${API_URL}/students/${user.id}/courses`, courseData);
+            const newUser = { ...res.data, id: res.data.uid };
+            setUser(newUser);
+            localStorage.setItem('user', JSON.stringify(newUser));
+            return { success: true };
+        } catch (err) {
+            console.error('Error adding course:', err);
+            return { success: false };
+        }
+    };
+
+    const addResearchPaper = async (paperData) => {
+        try {
+            const res = await axios.post(`${API_URL}/students/${user.id}/research-papers`, paperData);
+            const newUser = { ...res.data, id: res.data.uid };
+            setUser(newUser);
+            localStorage.setItem('user', JSON.stringify(newUser));
+            return { success: true };
+        } catch (err) {
+            console.error('Error adding research paper:', err);
+            return { success: false };
+        }
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem('user');
@@ -217,7 +256,7 @@ export const AuthProvider = ({ children }) => {
             students, registerUser, updateStudentProgress,
             fetchStudents, getMentorByUid, addEvent, addAchievement,
             addLeave, getMentorStats, addWeeklyUpdate, addNotification,
-            fetchNotifications, addDocument
+            fetchNotifications, addDocument, addProject, addCourse, addResearchPaper
         }}>
             {children}
         </AuthContext.Provider>

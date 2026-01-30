@@ -75,6 +75,27 @@ const UserSchema = new mongoose.Schema({
         type: String, // 'pdf', 'excel'
         url: String,
         timestamp: { type: Date, default: Date.now }
+    }],
+    projects: [{
+        title: String,
+        description: String,
+        link: String,
+        status: { type: String, default: 'Ongoing' }, // Ongoing, Completed
+        timestamp: { type: Date, default: Date.now }
+    }],
+    courses: [{
+        name: String,
+        platform: String,
+        status: { type: String, default: 'Ongoing' }, // Ongoing, Completed
+        certificate: String,
+        timestamp: { type: Date, default: Date.now }
+    }],
+    researchPapers: [{
+        title: String,
+        journal: String,
+        link: String,
+        status: { type: String, default: 'Published' }, // Published, Under Review
+        timestamp: { type: Date, default: Date.now }
     }]
 }, { timestamps: true });
 

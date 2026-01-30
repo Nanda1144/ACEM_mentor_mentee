@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { GraduationCap, Lock, User, ArrowRight } from 'lucide-react';
+import { GraduationCap, Lock, User, ArrowRight, UserCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Login() {
@@ -14,6 +14,27 @@ export default function Login() {
     const [mentorId, setMentorId] = useState('');
     const { login, registerUser } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Handle guest account from landing page
+    useEffect(() => {
+        if (location.state?.guest) {
+            handleGuestLogin();
+        }
+    }, [location.state]);
+
+    const handleGuestLogin = async () => {
+        // Simple guest login using demo credentials
+        const guestId = role === 'student' ? '2023CS01' : 'M-55B2-2024';
+        const guestPass = 'password123';
+
+        const result = await login(role, { uid: guestId, password: guestPass });
+        if (result.success) {
+            navigate(role === 'student' ? '/student' : '/mentor');
+        } else {
+            alert('Guest account not available at the moment.');
+        }
+    };
 
     const handleAction = async (e) => {
         e.preventDefault();
@@ -48,7 +69,7 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative">
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]" />
@@ -59,6 +80,14 @@ export default function Login() {
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md z-10"
             >
+                <button
+                    onClick={() => navigate('/')}
+                    className="mb-8 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors group mx-auto"
+                >
+                    <ArrowRight size={14} className="rotate-180 group-hover:-translate-x-1 transition-transform" />
+                    Back to Landing
+                </button>
+
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground mb-4 shadow-xl shadow-primary/20">
                         <GraduationCap size={32} />
@@ -67,7 +96,7 @@ export default function Login() {
                     <p className="text-muted-foreground mt-2">Mentor-Mentee Management System</p>
                 </div>
 
-                <div className="bg-card border border-border rounded-3xl p-8 shadow-2xl">
+                <div className="bg-card border border-border rounded-3xl p-8 shadow-2xl relative">
                     <div className="flex bg-muted rounded-xl p-1 mb-6">
                         <button
                             onClick={() => setRole('student')}
@@ -163,17 +192,34 @@ export default function Login() {
 
                         <button
                             type="submit"
-                            className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition-all flex items-center justify-center gap-2 group mt-4"
+                            className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition-all flex items-center justify-center gap-2 group mt-4 text-xs uppercase tracking-widest"
                         >
                             {mode === 'login' ? 'Sign In' : 'Register & Join'}
                             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </button>
                     </form>
 
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-border" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase font-bold px-2">
+                            <span className="bg-card text-muted-foreground px-4">Or continue with</span>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleGuestLogin}
+                        className="w-full py-3 rounded-xl border border-border hover:bg-muted font-bold transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-widest"
+                    >
+                        <UserCircle2 size={18} />
+                        Guest Access
+                    </button>
+
                     <div className="mt-8 pt-6 border-t border-border text-center">
                         <button
                             onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-                            className="text-sm font-semibold text-primary hover:underline"
+                            className="text-xs font-black text-primary hover:underline uppercase tracking-widest"
                         >
                             {mode === 'login' ? "Don't have an account? Register" : "Already have an account? Sign In"}
                         </button>
