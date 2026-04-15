@@ -1,20 +1,98 @@
+# 🎓 ACEM Mentor-Mentee Management System
 
-# React + Vite
+A full-stack web application designed to streamline mentorship programs by efficiently connecting mentors and mentees, managing interactions, and tracking progress within an organization or institution.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 👨‍🏫 Mentor & Mentee Registration
+- 🔐 Secure Authentication & Role-based Access (Admin / Mentor / Mentee)
+- 🔗 Mentor-Mentee Matching System
+- 📊 Dashboard for tracking activities and progress
+- 💬 Communication between mentors and mentees
+- 🗂️ Manage user data and mentorship records
+- 📈 Scalable and user-friendly interface
 
-## React Compiler
+---
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+**Frontend:**
+- HTML
+- CSS
+- JavaScript (React / Vanilla)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-=======
-# ACEM_mentor_mentee
-12ce321269d6887f3df7517e370ee1ac8f43f9a4
+**Backend:**
+- Node.js / Express (or Flask if used)
+
+**Database:**
+- MongoDB / MySQL
+
+**Other Tools:**
+- REST APIs
+- JSON
+- Git & GitHub
+
+---
+
+## 📂 Project Structure
+ACEM_mentor_mentee/
+│
+├── frontend/ # UI components and pages
+├── backend/ # API and server logic
+├── database/ # Schema / models
+├── routes/ # API routes
+├── controllers/ # Business logic
+├── public/ # Static files
+├── package.json
+└── README.md
+
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/Nanda1144/ACEM_mentor_mentee.git
+cd ACEM_mentor_mentee
+2️⃣ Install Dependencies
+npm install
+3️⃣ Setup Environment Variables
+
+Create a .env file and add:
+
+PORT=5000
+DB_URI=your_database_url
+JWT_SECRET=your_secret_key
+4️⃣ Run the Application
+npm start
+5️⃣ Open in Browser
+http://localhost:5000
+🧠 How It Works
+Users register as Mentor or Mentee
+Admin manages users and assigns mentorship pairs
+Mentors guide mentees through tasks and discussions
+System tracks interactions and progress
+📸 Screenshots
+
+Add UI screenshots here
+
+🔮 Future Enhancements
+🤖 AI-based mentor matching
+📅 Meeting scheduler integration
+📊 Advanced analytics dashboard
+📱 Mobile-friendly version
+🔔 Notification system
+🤝 Contributing
+
+Contributions are welcome!
+
+Fork the repo
+Create a branch (feature/new-feature)
+Commit your changes
+Push and create a Pull Request
+📄 License
+
+This project is licensed under the MIT License.
